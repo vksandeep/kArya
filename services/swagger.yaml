@@ -1,0 +1,470 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Task Management API
+  description: Tasks API
+host: api.tasks.com
+basePath: /v1/rest
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: Task
+    description: Task Management operations
+  - name: User
+    description: User related operations
+  - name: Label
+    description: Labeling Tasks
+  - name: Group
+    description: Grouping Tasks (projects)
+paths:
+  /task/{taskId}:
+    get:
+      description: Get task details
+      operationId: getTask
+      tags:
+        - Task
+      parameters:
+        - in: path
+          name: taskId
+          description: task id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Task returned
+          schema:
+            $ref: '#/definitions/Task'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      description: Updates the task
+      operationId: updateTask
+      tags:
+        - Task
+      parameters:
+        - in: path
+          name: taskId
+          description: task id
+          required: true
+          type: integer
+        - name: task
+          in: body
+          description: Task to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/Task'
+      responses:
+        '200':
+          description: Task successfully updated
+          schema:
+            $ref: '#/definitions/Task'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      description: Delete task 
+      operationId: deleteTask
+      tags:
+        - Task
+      parameters:
+        - in: path
+          name: taskId
+          description: task id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Task deleted
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /task/:
+    post:
+      description: Create a Task
+      operationId: createTask
+      tags:
+        - Task
+      parameters:
+        - name: task
+          in: body
+          description: Task to be created
+          required: true
+          schema:
+            $ref: '#/definitions/Task'
+      responses:
+        '200':
+          description: Task successfully created
+          schema:
+            $ref: '#/definitions/Task'
+        '400':
+          description: Some Client Input Error, cannot create task
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      description: Search tasks
+      operationId: searchTask
+      tags:
+        - Task
+      parameters:
+        - in: query
+          name: group
+          description: filter by group 
+          required: true
+          type: string
+        - in: query
+          name: createdBy
+          description: filter by ownership 
+          required: false
+          type: string
+        - in: query
+          name: assignedTo
+          description: filter by responsible 
+          required: false
+          type: string
+        - in: query
+          name: dueDate
+          description: filter by due 
+          required: false
+          type: string
+          enum: [past, today, tomorrow, thisweek, nextweek]
+        - in: query
+          name: status
+          description: filter by status 
+          required: false
+          type: string
+          enum: [NotStarted, InProgress, Done]
+        - in: query
+          name: title
+          description: partial task title 
+          required: false
+          type: string
+      responses:
+        '200':
+          description: A list of Tasks
+          schema:
+            $ref: '#/definitions/TaskList'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /group/:
+    post:
+      description: Create a Group
+      operationId: createGroup
+      tags:
+        - Group
+      parameters:
+        - name: group
+          in: body
+          description: Group to be created
+          required: true
+          schema:
+            $ref: '#/definitions/Group'
+      responses:
+        '200':
+          description: Group successfully created
+          schema:
+            $ref: '#/definitions/Group'
+        '400':
+          description: Some Client Input Error, cannot create Group
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      description: List groups
+      operationId: listGroups
+      tags:
+        - Group
+      parameters:
+        - in: query
+          name: groupNameStartsWith
+          description: partial group name to filter list 
+          required: false
+          type: string
+      responses:
+        '200':
+          description: A list of Groups
+          schema:
+            $ref: '#/definitions/GroupList'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /group/{groupId}:
+    get:
+      description: Get group
+      operationId: getGroup
+      tags:
+        - Group
+      parameters:
+        - in: path
+          name: groupId
+          description: group id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: User returned
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /user/:
+    post:
+      description: Create a User
+      operationId: createUser
+      tags:
+        - User
+      parameters:
+        - name: user
+          in: body
+          description: User to be created
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: User successfully created
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Some Client Input Error, cannot create User
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      description: List users
+      operationId: listUsers
+      tags:
+        - User
+      parameters:
+        - in: query
+          name: userIdStartsWith
+          description: partial user email to filter list 
+          required: false
+          type: string
+        - in: query
+          name: groupId
+          description: group id to filter list 
+          required: false
+          type: string
+      responses:
+        '200':
+          description: A list of User
+          schema:
+            $ref: '#/definitions/UserList'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /user/{userId}:
+    get:
+      description: Get user
+      operationId: getUser
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: userId
+          description: user id
+          required: true
+          type: string
+          format: email
+      responses:
+        '200':
+          description: User returned
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'
+  /label/:
+    post:
+      description: Create a Label
+      operationId: createLabel
+      tags:
+        - Label
+      parameters:
+        - name: label
+          in: body
+          description: Label to be created
+          required: true
+          schema:
+            $ref: '#/definitions/Label'
+      responses:
+        '200':
+          description: Label successfully created
+          schema:
+            $ref: '#/definitions/Label'
+        '400':
+          description: Some Client Input Error, cannot create Label
+          schema:
+            $ref: '#/definitions/Error'
+  /label/{labelId}:
+    get:
+      description: Get label
+      operationId: getLabel
+      tags:
+        - Label
+      parameters:
+        - in: path
+          name: labelId
+          description: label id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Label returned
+          schema:
+            $ref: '#/definitions/Label'
+        '400':
+          description: Some Client Input Error
+          schema:
+            $ref: '#/definitions/Error'  
+          
+definitions:
+  Task:
+    type: object
+    description: Task Entity
+    properties:
+      id:
+        type: integer
+        description: Task ID
+      title:
+        type: string
+        description: Task title -short desc
+        pattern: ^[\w\s\-\&\.\'\"\,\;\$#%@]{6,20}$
+      desc:
+        type: string
+        description: Task detailed description (100?)
+      createdBy:
+        type: string
+        description: User Id of created user
+      assignedTo:
+        type: string
+        description: User Id of assigned to user
+      createdOn:
+        type: string
+        description: Date-time when task was created
+        format: date-time
+      dueOn:
+        type: string
+        description: Date-time when task was due
+        format: date-time
+      status:
+        type: string
+        description: Status of task
+        enum: [NotStarted, InProgress, Done]
+      group:
+        type: string
+        description: Group Id of the associated group
+      labels:
+        type: array
+        items: 
+          type: string
+          description: Labels names on the task
+          pattern: '^[\w|\s|\-]{,10}$'
+    required:
+      - id
+      - title
+      - createdBy
+      - createdOn
+      - status
+  
+  TaskList:
+    type: array
+    items:
+      $ref: '#/definitions/Task'
+  
+
+  User:
+    type: object
+    description: User Entity
+    properties:
+      id:
+        type: string
+        description: User ID - email address
+        format: email
+        pattern: '^[a-z\d]+([\.\_]?[a-z\d]+)+@[a-z\d]+(\.[a-z]+)+$'
+      name:
+        type: string
+        description: Name first and last
+      title:
+        type: string
+        description: title or designation or role
+      pwd:
+        type: string
+        description: Password of user
+        format: password
+    required:
+      - id
+      - name
+  
+  UserList:
+    type: array
+    items:
+      $ref: '#/definitions/User'
+
+  Group:
+    type: object
+    description: Group Entity, e.g project name
+    properties:
+      id:
+        type: integer
+        description: Group ID - backend id
+      name:
+        type: string
+        description: Group Name
+        pattern: '^[\w|\s|\-]{,20}$'
+      desc:
+        type: string
+        description: Decription of group
+      owner:
+        type: string
+        description: Group Owner's user ID
+    required:
+      - id
+      - name
+
+  GroupList:
+    type: array
+    items:
+      $ref: '#/definitions/Group'
+
+  Label:
+    type: object
+    description: generic labels for tagging the tasks
+    properties:
+      id:
+        type: integer
+        description: Label ID - backend id
+      name:
+        type: string
+        description: label Name
+        pattern: '^[\w|\s|\-]{,10}$'
+      desc:
+        type: string
+        description: Decription of label
+    required:
+      - id
+      - name
+
+  Error:
+    type: object
+    description: Error Entity
+    properties:
+      code:
+        type: string
+        description: Error Code
+      desc:
+        type: string
+        description: Error desc
